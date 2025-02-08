@@ -40,11 +40,11 @@ LANGUAGE_CONFIG = {
                 "**🏡 Servicios Incluidos:** WiFi • Piscina • Estacionamiento • Netflix"
             ),
             "reserva_pending": (
-                "⏳ *Pre-Reserva Registrada*\n\n"
-                "📋 ID: {booking_id}\n"
-                "📅 Fechas: {date}\n"
-                "💲 Total: ${price}\n\n"
-                "ℹ️ Verificando disponibilidad..."
+                 "⏳ *Reserva en Proceso* 🚀\n\n"
+                 "📋 ID: {booking_id}\n"
+                 "📅 Fechas: {date}\n"
+                 "💲 Total: ${price}\n\n"
+                 "✅ Recibirás una confirmación por WhatsApp cuando todo esté listo."
             ),
             "reserva_confirmed": (
                 "✅ *¡Reserva Confirmada!*\n\n"

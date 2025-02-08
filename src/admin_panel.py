@@ -21,9 +21,10 @@ def show_all_bookings(conn):
     print("\n📋 *Todas las Reservas:*")
     for b in bookings:
         print(f"\nID: {b[0]}")
-        print(f"Check-in: {b[1]} | Check-out: {b[2]}")
-        print(f"Tipo: {b[4]} | Precio: ${b[5]}")
-        print(f"Estado: {b[6]}")
+        print(f"📅 Fechas: {b[1]} a {b[2]}")
+        print(f"👤 Cliente: {b[3]} | 📞 Teléfono: {b[4]}")
+        print(f"🏠 Tipo: {b[5]} | 💲 Precio: ${b[6]}")
+        print(f"🔄 Estado: {b[7]}")
 
 def show_calendar(conn):
     try:
@@ -86,6 +87,51 @@ def cancel_booking(conn):
             print("✅ Reserva cancelada!")
     except Exception as e:
         print(f"❌ Error: {str(e)}")
+
+def confirmar_pago_manual(conn):
+    try:
+        print("\n" + "="*50)
+        print("✅ *CONFIRMAR PAGO MANUAL*")
+        booking_id = input("🔍 Ingrese el ID de reserva: ").strip()
+        
+        cursor = conn.cursor()
+        cursor.execute('''SELECT client_name, client_phone, check_in, check_out, apartment_type, price 
+                        FROM bookings WHERE id = ? AND status = "pending"''', (booking_id,))
+        reserva = cursor.fetchone()
+        
+        if not reserva:
+            print("\n❌ Reserva no encontrada o ya confirmada")
+            return
+            
+        cursor.execute('''UPDATE bookings SET status = "confirmed" WHERE id = ?''', (booking_id,))
+        conn.commit()
+        
+        client_name, client_phone, check_in, check_out, apt_type, price = reserva
+        
+        mensaje = f'''
+🎉 *¡PAGO CONFIRMADO!*  
+
+Hola {client_name},  
+Tu reserva *{booking_id}* está oficialmente activa.  
+
+📅 *Fechas:* {check_in} a {check_out}  
+🏠 *Apartamento:* {apt_type}  
+💸 *Total pagado:* ${price}  
+
+📲 *Próximos pasos:*  
+1. Recibirás un mensaje de WhatsApp 48h antes del check-in  
+2. Presenta tu DNI/pasaporte al llegar  
+3. ¡Disfruta de tu estadía! 🌴✨
+
+*¿Preguntas?* Responde a este mensaje.  
+'''
+        print("\n" + "="*50)
+        print(f"📤 Notificación para {client_name} ({client_phone}):")
+        print(mensaje)  
+        print("="*50)
+        
+    except Exception as e:
+        print(f"\n❌ Error: {str(e)}")
         
 def show_all_bookings(conn):
     cursor = conn.cursor()

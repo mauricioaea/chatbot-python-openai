@@ -1,10 +1,11 @@
+# chatbot.py
 import logging
 from datetime import datetime
 from transformers import pipeline
 from .config import LANGUAGE_CONFIG
 from .database import init_db
 from .booking_handler import validate_dates, check_availability, is_apartment_available, validate_phone
-from .admin_panel import admin_auth, show_all_bookings, show_calendar, add_manual_booking, cancel_booking
+from .admin_panel import admin_auth, show_all_bookings, show_calendar, add_manual_booking, cancel_booking, confirmar_pago_manual
 
 class Chatbot:
     def __init__(self):
@@ -50,7 +51,7 @@ class Chatbot:
             if not is_apartment_available(self.db_conn, apt_name, check_in, check_out):
                 return f"❌ Apartamento {apt_type} no disponible."
             
-            # Paso 4: Confirmar
+            # Paso 4: Confirmar reserva
             nights = (datetime.strptime(check_out, "%Y-%m-%d") - datetime.strptime(check_in, "%Y-%m-%d")).days
             price = 110 * nights
             if input(f"\n💲 Total: ${price} | Confirmar? (s/n): ").lower() != "s":
@@ -68,16 +69,39 @@ class Chatbot:
             booking_id = f"RES-{datetime.now().strftime('%Y%m%d%H%M%S')}"
             cursor = self.db_conn.cursor()
             cursor.execute('''INSERT INTO bookings 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                           (booking_id, check_in, check_out, client_name, 
-                            client_phone, apt_name, price, "confirmed"))
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                        (booking_id, check_in, check_out, client_name, 
+                        client_phone, apt_name, price, "pending"))
             self.db_conn.commit()
             
-            return self._get_response("reserva_confirmed").format(
+            # Paso 6: Mostrar opciones de pago
+            paypal_link = f"https://www.paypal.com/paypalme/CuracaoVacaciones/{booking_id}"
+            whatsapp_link = f"https://wa.me/+59995153955?text=¡Hola!%20👋%20Acabo%20de%20reservar%20{booking_id}%20y%20quiero%20enviar%20mi%20comprobante%20de%20pago"
+            
+            print(f"\n{'='*50}")
+            print(f'''
+🎉 *¡Reserva registrada exitosamente, {client_name}!*
+
+👇 *Opciones para completar tu pago:*
+[1️⃣] Pagar con PayPal: {paypal_link}
+[2️⃣] Enviar comprobante de transferencia: {whatsapp_link}
+
+📌 *Instrucciones importantes:*
+• Si pagas con PayPal: La confirmación es automática
+• Si pagas por otro medio: 
+  1. Envía tu comprobante usando el botón [2️⃣]
+  2. Validaremos tu pago en <24h
+  3. Recibirás confirmación por WhatsApp
+
+⏳ *Reserva activa por 48h mientras completas el pago*
+''')
+            
+            return self._get_response("reserva_pending").format(
                 booking_id=booking_id,
                 date=f"{check_in} a {check_out}",
                 price=price
             )
+            
         except Exception as e:
             logging.error(f"Error en reserva: {str(e)}")
             return "❌ Error en el proceso"
@@ -104,10 +128,10 @@ class Chatbot:
             if choice == "/admin" and admin_auth():
                 while True:
                     print("\n🛠️ Menú de Administración")
-                    print("1. Ver reservas\n2. Calendario\n3. Agregar reserva\n4. Cancelar reserva\n5. Salir")
+                    print("1. Ver reservas\n2. Calendario\n3. Agregar reserva\n4. Cancelar reserva\n5. Confirmar pago manual\n6. Salir")
                     admin_choice = input("\n➡️  Opción: ").strip()
                     
-                    if admin_choice == "5":
+                    if admin_choice == "6":
                         break
                     elif admin_choice == "1":
                         show_all_bookings(self.db_conn)
@@ -117,6 +141,8 @@ class Chatbot:
                         add_manual_booking(self.db_conn)
                     elif admin_choice == "4":
                         cancel_booking(self.db_conn)
+                    elif admin_choice == "5":
+                        confirmar_pago_manual(self.db_conn)
                     else:
                         print("❌ Opción inválida")
                 continue
