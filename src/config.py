@@ -11,10 +11,6 @@ logging.basicConfig(
     ]
 )
 
-# ================= CONFIGURACIÓN ADMIN =================
-ADMIN_USERNAME = "admin_curacao"
-ADMIN_PASSWORD = "clave_secreta_123"
-
 # ================= CONFIGURACIÓN INICIAL =================
 LANGUAGE_CONFIG = {
     "es": {
@@ -40,11 +36,11 @@ LANGUAGE_CONFIG = {
                 "**🏡 Servicios Incluidos:** WiFi • Piscina • Estacionamiento • Netflix"
             ),
             "reserva_pending": (
-                 "⏳ *Reserva en Proceso* 🚀\n\n"
-                 "📋 ID: {booking_id}\n"
-                 "📅 Fechas: {date}\n"
-                 "💲 Total: ${price}\n\n"
-                 "✅ Recibirás una confirmación por WhatsApp cuando todo esté listo."
+                "⏳ *Reserva en Proceso* 🚀\n\n"
+                "📋 ID: {booking_id}\n"
+                "📅 Fechas: {date}\n"
+                "💲 Total: ${price}\n\n"
+                "✅ Recibirás una confirmación por WhatsApp cuando todo esté listo."
             ),
             "reserva_confirmed": (
                 "✅ *¡Reserva Confirmada!*\n\n"

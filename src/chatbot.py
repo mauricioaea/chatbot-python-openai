@@ -1,9 +1,8 @@
-# chatbot.py
 import logging
 from datetime import datetime
 from transformers import pipeline
 from .config import LANGUAGE_CONFIG
-from .database import init_db
+from .database import init_db, encrypt_data
 from .booking_handler import validate_dates, check_availability, is_apartment_available, validate_phone
 from .admin_panel import admin_auth, show_all_bookings, show_calendar, add_manual_booking, cancel_booking, confirmar_pago_manual
 
@@ -65,16 +64,19 @@ class Chatbot:
             if not validate_phone(client_phone):
                 return "❌ Teléfono inválido. Use formato internacional: +584241234567"
             
+            # Paso 6: Encriptar teléfono
+            client_phone_encrypted = encrypt_data(client_phone)
+            
             # Registrar en DB
             booking_id = f"RES-{datetime.now().strftime('%Y%m%d%H%M%S')}"
             cursor = self.db_conn.cursor()
             cursor.execute('''INSERT INTO bookings 
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
                         (booking_id, check_in, check_out, client_name, 
-                        client_phone, apt_name, price, "pending"))
+                        client_phone_encrypted, apt_name, price, "pending"))
             self.db_conn.commit()
             
-            # Paso 6: Mostrar opciones de pago
+            # Paso 7: Mostrar opciones de pago
             paypal_link = f"https://www.paypal.com/paypalme/CuracaoVacaciones/{booking_id}"
             whatsapp_link = f"https://wa.me/+59995153955?text=¡Hola!%20👋%20Acabo%20de%20reservar%20{booking_id}%20y%20quiero%20enviar%20mi%20comprobante%20de%20pago"
             
@@ -93,8 +95,7 @@ class Chatbot:
   2. Validaremos tu pago en <24h
   3. Recibirás confirmación por WhatsApp
 
-⏳ *Reserva activa por 48h mientras completas el pago*
-''')
+⏳ *Reserva activa por 48h*''')
             
             return self._get_response("reserva_pending").format(
                 booking_id=booking_id,

@@ -1,15 +1,38 @@
 import getpass
 import pandas as pd
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import bcrypt
+import os
+
+# Cargar variables de entorno
+load_dotenv()
 
 def admin_auth():
-    from .config import ADMIN_USERNAME, ADMIN_PASSWORD
+    """Autentica al administrador usando credenciales almacenadas en .env."""
     print("\n🔒 Panel de Administración")
     user = input("Usuario: ").strip()
-    password = getpass.getpass("Contraseña: ").strip()
-    return user == ADMIN_USERNAME and password == ADMIN_PASSWORD
+    password = getpass.getpass("Contraseña: ").strip().encode()  # Convertimos la contraseña ingresada a bytes
+    
+    # Obtener hash desde .env y asegurarnos de que se convierta correctamente a bytes
+    stored_hash = os.getenv("ADMIN_PASSWORD_HASH")
+    
+    if stored_hash is None:
+        print("❌ Error: ADMIN_PASSWORD_HASH no está definido en .env")
+        return False
+    
+    stored_hash = stored_hash.encode()  # Convertimos el hash almacenado a bytes
+    
+    # Verificar usuario y contraseña
+    if user == os.getenv("ADMIN_USER") and bcrypt.checkpw(password, stored_hash):
+        print("✅ Acceso concedido")
+        return True
+    else:
+        print("❌ Acceso denegado")
+        return False
 
 def show_all_bookings(conn):
+    """Muestra todas las reservas en la base de datos."""
     cursor = conn.cursor()
     cursor.execute('''SELECT * FROM bookings ORDER BY check_in''')
     bookings = cursor.fetchall()
@@ -27,6 +50,7 @@ def show_all_bookings(conn):
         print(f"🔄 Estado: {b[7]}")
 
 def show_calendar(conn):
+    """Muestra un calendario de disponibilidad."""
     try:
         month_year = input("\n📅 Mes a consultar (MM/AAAA): ").strip()
         target = datetime.strptime(month_year, "%m/%Y")
@@ -52,6 +76,7 @@ def show_calendar(conn):
         print(f"❌ Error: {str(e)}")
 
 def add_manual_booking(conn):
+    """Permite al administrador agregar una reserva manualmente."""
     try:
         print("\n📝 *Agregar Reserva Manual*")
         booking_id = input("ID de la reserva: ").strip()
@@ -74,6 +99,7 @@ def add_manual_booking(conn):
         print(f"❌ Error: {str(e)}")
 
 def cancel_booking(conn):
+    """Permite al administrador cancelar una reserva."""
     try:
         print("\n🗑️ *Cancelar Reserva*")
         booking_id = input("ID de la reserva: ").strip()
@@ -89,6 +115,7 @@ def cancel_booking(conn):
         print(f"❌ Error: {str(e)}")
 
 def confirmar_pago_manual(conn):
+    """Permite al administrador confirmar un pago manualmente."""
     try:
         print("\n" + "="*50)
         print("✅ *CONFIRMAR PAGO MANUAL*")
@@ -127,7 +154,7 @@ Tu reserva *{booking_id}* está oficialmente activa.
 '''
         print("\n" + "="*50)
         print(f"📤 Notificación para {client_name} ({client_phone}):")
-        print(mensaje)  
+        print(mensaje)
         print("="*50)
         
     except Exception as e:

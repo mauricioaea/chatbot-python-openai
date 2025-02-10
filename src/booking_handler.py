@@ -3,7 +3,7 @@ from datetime import datetime
 import logging
 
 def validate_phone(phone, country_code="VE"):
-    """Valida números de teléfono internacionales"""
+    """Valida números de teléfono internacionales."""
     try:
         parsed = phonenumbers.parse(phone, country_code)
         return phonenumbers.is_valid_number(parsed)
@@ -11,6 +11,7 @@ def validate_phone(phone, country_code="VE"):
         return False
 
 def validate_dates(date_str):
+    """Valida el formato y lógica de las fechas."""
     try:
         check_in, check_out = date_str.split(" a ")
         start = datetime.strptime(check_in, "%Y-%m-%d")
@@ -26,6 +27,7 @@ def validate_dates(date_str):
         return False, "❌ Formato de fecha inválido"
 
 def check_availability(conn, check_in, check_out):
+    """Verifica la disponibilidad de los apartamentos."""
     cursor = conn.cursor()
     
     # Verificar ambos apartamentos
@@ -42,6 +44,7 @@ def check_availability(conn, check_in, check_out):
         return False, "❌ No hay disponibilidad."
 
 def is_apartment_available(conn, apartment_type, check_in, check_out):
+    """Verifica si un apartamento está disponible en las fechas indicadas."""
     cursor = conn.cursor()
     cursor.execute('''SELECT * FROM bookings 
                       WHERE apartment_type = ? 
