@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime
 from transformers import pipeline
 from .config import LANGUAGE_CONFIG
@@ -25,49 +26,43 @@ class Chatbot:
 
     def _handle_booking(self):
         try:
-            # Paso 1: Obtener fechas
             print("\n" + "="*50)
             print(self._get_response("date_format_help"))
-            date_input = input("\n📅 Fechas (check-in a check-out): ").strip()
+            date_input = input("\n" + self._get_response("date_input_prompt")).strip()
             is_valid, result = validate_dates(date_input)
             if not is_valid:
                 return result
             check_in, check_out = result
-            
-            # Paso 2: Verificar disponibilidad
+
             is_available, msg = check_availability(self.db_conn, check_in, check_out)
             print("\n" + msg)
             if not is_available:
                 return self._get_response("reserva_rejected")
-            
-            # Paso 3: Seleccionar apartamento
+
             print("\n" + self._get_response("apartamentos"))
-            apt_type = input("\n🔍 Elija apartamento (1/2): ").strip()
+            apt_type = input("\n" + self._get_response("apartment_choice_prompt")).strip()
             if apt_type not in ["1", "2"]:
-                return "❌ Opción inválida"
-            apt_name = "Frente al Mar" if apt_type == "1" else "Vista Piscina"
+                return self._get_response("invalid_option")
             
+            # Usar las claves de traducción para los nombres de los apartamentos
+            apt_name = self._get_response("apartment1_name") if apt_type == "1" else self._get_response("apartment2_name")
+
             if not is_apartment_available(self.db_conn, apt_name, check_in, check_out):
-                return f"❌ Apartamento {apt_type} no disponible."
-            
-            # Paso 4: Confirmar reserva
+                return self._get_response("apartment_unavailable").format(apt_type=apt_type)
+
             nights = (datetime.strptime(check_out, "%Y-%m-%d") - datetime.strptime(check_in, "%Y-%m-%d")).days
             price = 110 * nights
-            if input(f"\n💲 Total: ${price} | Confirmar? (s/n): ").lower() != "s":
-                return "🚫 Reserva cancelada"
-            
-            # Paso 5: Obtener datos del cliente
-            client_name = input("\n👤 Nombre completo del cliente: ").strip()
-            client_phone = input("\n📞 Teléfono de contacto (ej: +584241234567): ").strip()
-            
-            # Validar teléfono
+            if input(f"\n💲 {self._get_response('total_price')} ${price} | {self._get_response('confirmation_prompt')} ").lower() != "s":
+                return self._get_response("booking_cancelled")
+
+            client_name = input("\n" + self._get_response("client_name_prompt")).strip()
+            client_phone = input("\n" + self._get_response("client_phone_prompt")).strip()
+
             if not validate_phone(client_phone):
-                return "❌ Teléfono inválido. Use formato internacional: +584241234567"
-            
-            # Paso 6: Encriptar teléfono
+                return self._get_response("invalid_phone")
+
             client_phone_encrypted = encrypt_data(client_phone)
-            
-            # Registrar en DB
+
             booking_id = f"RES-{datetime.now().strftime('%Y%m%d%H%M%S')}"
             cursor = self.db_conn.cursor()
             cursor.execute('''INSERT INTO bookings 
@@ -75,89 +70,130 @@ class Chatbot:
                         (booking_id, check_in, check_out, client_name, 
                         client_phone_encrypted, apt_name, price, "pending"))
             self.db_conn.commit()
-            
-            # Paso 7: Mostrar opciones de pago
+
             paypal_link = f"https://www.paypal.com/paypalme/CuracaoVacaciones/{booking_id}"
-            whatsapp_link = f"https://wa.me/+59995153955?text=¡Hola!%20👋%20Acabo%20de%20reservar%20{booking_id}%20y%20quiero%20enviar%20mi%20comprobante%20de%20pago"
-            
+            whatsapp_link = f"https://wa.me/+59995153955?text={self._get_response('whatsapp_message').format(booking_id=booking_id)}"
+
             print(f"\n{'='*50}")
-            print(f'''
-🎉 *¡Reserva registrada exitosamente, {client_name}!*
+            print(self._get_response("booking_success").format(
+                client_name=client_name,
+                paypal_link=paypal_link,
+                whatsapp_link=whatsapp_link
+            ))
 
-👇 *Opciones para completar tu pago:*
-[1️⃣] Pagar con PayPal: {paypal_link}
-[2️⃣] Enviar comprobante de transferencia: {whatsapp_link}
-
-📌 *Instrucciones importantes:*
-• Si pagas con PayPal: La confirmación es automática
-• Si pagas por otro medio: 
-  1. Envía tu comprobante usando el botón [2️⃣]
-  2. Validaremos tu pago en <24h
-  3. Recibirás confirmación por WhatsApp
-
-⏳ *Reserva activa por 48h*''')
-            
             return self._get_response("reserva_pending").format(
                 booking_id=booking_id,
-                date=f"{check_in} a {check_out}",
+                date=f"{check_in} {self._get_response('to')} {check_out}",
                 price=price
             )
-            
+
         except Exception as e:
             logging.error(f"Error en reserva: {str(e)}")
-            return "❌ Error en el proceso"
+            return self._get_response("booking_error")
+
+    def show_location(self):
+        """Muestra la ubicación de los apartamentos con un enlace a Google Maps"""
+        lat, lon = "12.3665255", "-69.1536117"
+        maps_url = f"https://www.google.com/maps?q={lat},{lon}"
+        
+        print("\n" + self._get_response("location_prompt"))
+        choice = input("\n" + self._get_response("location_choice_prompt")).strip()
+        
+        if choice == "1":
+            print(f"\n{self._get_response('location_response').format(maps_url=maps_url)}")
+
+    def contact_advisor(self):
+        """Muestra los datos de contacto del asesor"""
+        print("\n" + self._get_response("contact_info"))
+
+    def change_language(self):
+        """Cambia el idioma del chatbot."""
+        print("\n🌐 Seleccione un idioma / Select a language:")
+        print("[1] Español")
+        print("[2] English")
+        print("[3] Português")
+        print("[4] Nederlands")
+        choice = input("Seleccione una opción / Select an option: ").strip()
+        
+        lang_map = {"1": "es", "2": "en", "3": "pt", "4": "nl"}
+        if choice in lang_map:
+            self.language = lang_map[choice]
+            self._load_models()
+            print(f"\n✅ {self._get_response('language_changed')}")
+        else:
+            print("\n❌", self._get_response("invalid_option"))
 
     def run(self):
-        print("\n" + "="*50)
-        print("  🌴 CUACAO VACACIONES - ASISTENTE VIRTUAL  ")
-        print("="*50)
-        
-        # Configurar idioma
-        lang = input("\n🌐 Idioma (1=ES/2=EN): ").strip()
-        self.language = "es" if lang == "1" else "en"
-        self._load_models()
-        
-        # Obtener nombre
-        self.user_name = input("\n👤 Ingrese su nombre: ").strip()
-        print("\n" + self._get_response("welcome").format(name=self.user_name))
-        
-        # Bucle principal
-        while True:
-            print("\n" + self._get_response("menu"))
-            choice = input("\n➡️  Opción: ").strip().lower()
+            print("\n" + "="*50)
+            print("  🌴 CURACAO VACACIONES - VIRTUAL ASSISTANT  ")
+            print("="*50)
+
+            # Selección inicial de idioma
+            print("\n🌐 Por favor elija su idioma / Please choose your language:")
+            print("[1] Español")
+            print("[2] English")
+            print("[3] Português")
+            print("[4] Nederlands")
+            lang_choice = input("Seleccione una opción / Select an option: ").strip()
             
-            if choice == "/admin" and admin_auth():
-                while True:
-                    print("\n🛠️ Menú de Administración")
-                    print("1. Ver reservas\n2. Calendario\n3. Agregar reserva\n4. Cancelar reserva\n5. Confirmar pago manual\n6. Salir")
-                    admin_choice = input("\n➡️  Opción: ").strip()
-                    
-                    if admin_choice == "6":
-                        break
-                    elif admin_choice == "1":
-                        show_all_bookings(self.db_conn)
-                    elif admin_choice == "2":
-                        show_calendar(self.db_conn)
-                    elif admin_choice == "3":
-                        add_manual_booking(self.db_conn)
-                    elif admin_choice == "4":
-                        cancel_booking(self.db_conn)
-                    elif admin_choice == "5":
-                        confirmar_pago_manual(self.db_conn)
-                    else:
-                        print("❌ Opción inválida")
-                continue
-                
-            if choice in ["6", "salir"]:
-                print("\n🌞 ¡Gracias por preferirnos!")
-                break
-            elif choice in ["1", "ver apartamentos"]:
-                print("\n" + self._get_response("apartamentos"))
-            elif choice in ["2", "reservar"]:
-                print("\n" + self._handle_booking())
-            elif choice in ["3", "promociones"]:
-                print("\n" + self._get_response("promociones"))
-            elif choice in ["4", "contactar asesor"]:
-                print("\n" + self._get_response("contact_info"))
+            lang_map = {"1": "es", "2": "en", "3": "pt", "4": "nl"}
+            if lang_choice in lang_map:
+                self.language = lang_map[lang_choice]
+                self._load_models()
+                print(f"\n✅ {self._get_response('language_changed')}")
             else:
-                print("\nℹ️ Opción inválida")
+                print("\n❌", self._get_response("invalid_option"))
+                return  # Salir si la opción es inválida
+
+            self.user_name = input("\n" + self._get_response("name_prompt")).strip()
+            print("\n" + self._get_response("welcome").format(name=self.user_name))
+
+            while True:
+                print("\n" + self._get_response("menu"))
+                choice = input("\n➡️  " + self._get_response("option_prompt")).strip().lower()
+
+                if choice == "/admin":
+                    if admin_auth():
+                        while True:
+                            print("\n🛠️", self._get_response("admin_menu"))
+                            print("1. Ver reservas")
+                            print("2. Calendario")
+                            print("3. Agregar reserva")
+                            print("4. Cancelar reserva")
+                            print("5. Confirmar pago manual")
+                            print("6. Salir")
+                            admin_choice = input("\n➡️  " + self._get_response("option_prompt")).strip()
+
+                            if admin_choice == "6":
+                                break
+                            elif admin_choice == "1":
+                                show_all_bookings(self.db_conn)
+                            elif admin_choice == "2":
+                                show_calendar(self.db_conn)
+                            elif admin_choice == "3":
+                                add_manual_booking(self.db_conn)
+                            elif admin_choice == "4":
+                                cancel_booking(self.db_conn)
+                            elif admin_choice == "5":
+                                confirmar_pago_manual(self.db_conn)
+                            else:
+                                print("\n❌", self._get_response("invalid_option"))
+                    continue
+
+                if choice in ["7", "exit", "salir", "sair", "afsluiten"]:
+                    print("\n🌞", self._get_response("goodbye"))
+                    break
+                elif choice in ["1", "ver apartamentos", "view apartments", "ver apartamentos", "appartementen bekijken"]:
+                    print("\n" + self._get_response("apartamentos"))
+                elif choice in ["2", "reservar", "book", "reservar", "boeken"]:
+                    print("\n" + self._handle_booking())
+                elif choice in ["3", "promociones", "promotions", "promoções", "aanbiedingen"]:
+                    print("\n" + self._get_response("promociones"))
+                elif choice in ["4", "contactar asesor", "contact advisor", "contactar consultor", "contact opnemen"]:
+                    self.contact_advisor()
+                elif choice in ["5", "cambiar idioma", "change language", "mudar idioma", "taal wijzigen"]:
+                    self.change_language()
+                elif choice in ["6", "ver ubicación", "view location", "ver localização", "locatie bekijken"]:
+                    self.show_location()
+                else:
+                    print("\nℹ️", self._get_response("invalid_option"))

@@ -1,3 +1,6 @@
 2025-02-06 15:43:50,109 - ERROR - Error: table bookings has no column named dates
 2025-02-06 15:44:49,846 - ERROR - Error: table bookings has no column named dates
 2025-02-07 06:53:45,480 - ERROR - Error en reserva: no such column: check_in
+2025-02-10 13:12:55,768 - ERROR - Error en reserva: 'apartment1_name'
+2025-02-10 16:21:27,748 - ERROR - Error en reserva: 'apartment2_name'
+2025-02-10 16:22:08,580 - ERROR - Error en reserva: 'apartment1_name'
