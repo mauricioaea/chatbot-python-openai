@@ -40,6 +40,10 @@ LANGUAGE_CONFIG = {
                 "   - 📍 Ubicación: Zona VIP\n\n"
                 "**🏡 Servicios Incluidos:** WiFi • Piscina • Estacionamiento • Netflix • Amazon Prime • Recojida en Aereopuerto Gratis"
             ),
+            "apartment_images_prompt": "¿Qué te gustaría hacer?",
+            "view_apartment1_images": "Ver imágenes del Apartamento 1 (Vista al Mar)",
+            "view_apartment2_images": "Ver imágenes del Apartamento 2 (Vista Piscina)",
+            "return_to_menu": "Volver al menú principal",
             "reserva_pending": (
                 "⏳ *Reserva en Proceso* 🚀\n\n"
                 "📋 ID: {booking_id}\n"
@@ -56,12 +60,13 @@ LANGUAGE_CONFIG = {
             ),
             "reserva_rejected": "❌ No hay disponibilidad. Intente con otras fechas.",
             "promociones": "🎉 20% OFF en estancias >7 noches",
-            "contact_info": "📞 Contacto directo: Angela +5999-5153955 (WhatsApp)",
+            "contact_info": "📞 Ayuda HUmana -> Angela esta disponible +5999-5153955 (WhatsApp)",
             "date_format_help": "🗓️ Formato: YYYY-MM-DD a YYYY-MM-DD\nEj: 2024-12-01 a 2024-12-10",
             "date_input_prompt": "📅 Fechas (check-in a check-out): ",
             "apartment_choice_prompt": "🔍 Elija apartamento (1/2): ",
             "total_price": "Total",
             "confirmation_prompt": "Confirmar? (s/n)",
+            "confirmation_character": "s",
             "client_name_prompt": "👤 Nombre completo del cliente: ",
             "client_phone_prompt": "📞 Teléfono de contacto (ej: +584241234567): ",
             "invalid_option": "❌ Opción inválida",
@@ -116,7 +121,7 @@ LANGUAGE_CONFIG = {
             ),
             "apartamentos": (
                 "🏠 *Available Apartment Types:*\n\n"
-                "1. **🌊Ocean View**\n"
+                "1. **🌊 Ocean View**\n"
                 "   - 🛌 Capacity: 4 guests\n"
                 "   - 💲 Price: $110/night\n"
                 "   - 📍 Location: Westpunt-Curacao\n\n"
@@ -126,6 +131,10 @@ LANGUAGE_CONFIG = {
                 "   - 📍 Location: VIP Zone\n\n"
                 "**🏡 Included Services:** WiFi • Pool • Parking • Netflix"
             ),
+            "apartment_images_prompt": "What would you like to do?",
+            "view_apartment1_images": "View images of Apartment 1 (Ocean View)",
+            "view_apartment2_images": "View images of Apartment 2 (Pool View)",
+            "return_to_menu": "Return to main menu",
             "reserva_pending": (
                 "⏳ *Reservation in Progress* 🚀\n\n"
                 "📋 ID: {booking_id}\n"
@@ -142,12 +151,13 @@ LANGUAGE_CONFIG = {
             ),
             "reserva_rejected": "❌ No availability. Please try different dates.",
             "promociones": "🎉 20% OFF for stays >7 nights",
-            "contact_info": "📞 Direct contact: Angela +5999-5153955 (WhatsApp)",
+            "contact_info": "📞 Human help -> Angela is available +5999-5153955 (WhatsApp)",
             "date_format_help": "🗓️ Format: YYYY-MM-DD to YYYY-MM-DD\nExample: 2024-12-01 to 2024-12-10",
             "date_input_prompt": "📅 Dates (check-in to check-out): ",
             "apartment_choice_prompt": "🔍 Choose apartment (1/2): ",
             "total_price": "Total",
             "confirmation_prompt": "Confirm? (y/n)",
+            "confirmation_character": "y",
             "client_name_prompt": "👤 Full name: ",
             "client_phone_prompt": "📞 Contact phone (e.g., +584241234567): ",
             "invalid_option": "❌ Invalid option",
@@ -202,7 +212,7 @@ LANGUAGE_CONFIG = {
             ),
             "apartamentos": (
                 "🏠 *Tipos de Apartamentos Disponíveis:*\n\n"
-                "1. **🌊Vista para o Mar**\n"
+                "1. **🌊 Vista para o Mar**\n"
                 "   - 🛌 Capacidade: 4 hóspedes\n"
                 "   - 💲 Preço: $110/noite\n"
                 "   - 📍 Localização: Westpunt-Curacao\n\n"
@@ -212,6 +222,10 @@ LANGUAGE_CONFIG = {
                 "   - 📍 Localização: Zona VIP\n\n"
                 "**🏡 Serviços Incluídos:** WiFi • Piscina • Estacionamento • Netflix"
             ),
+            "apartment_images_prompt": "O que você gostaria de fazer?",
+            "view_apartment1_images": "Ver imagens do Apartamento 1 (Vista para o Mar)",
+            "view_apartment2_images": "Ver imagens do Apartamento 2 (Vista para a Piscina)",
+            "return_to_menu": "Voltar ao menu principal",
             "reserva_pending": (
                 "⏳ *Reserva em Processo* 🚀\n\n"
                 "📋 ID: {booking_id}\n"
@@ -228,12 +242,13 @@ LANGUAGE_CONFIG = {
             ),
             "reserva_rejected": "❌ Não há disponibilidade. Tente outras datas.",
             "promociones": "🎉 20% OFF para estadias >7 noites",
-            "contact_info": "📞 Contato direto: Angela +5999-5153955 (WhatsApp)",
+            "contact_info": "📞 Ajuda humana -> Angela está disponível +5999-5153955 (WhatsApp)",
             "date_format_help": "🗓️ Formato: YYYY-MM-DD a YYYY-MM-DD\nExemplo: 2024-12-01 a 2024-12-10",
             "date_input_prompt": "📅 Datas (check-in a check-out): ",
             "apartment_choice_prompt": "🔍 Escolha apartamento (1/2): ",
             "total_price": "Total",
             "confirmation_prompt": "Confirmar? (s/n)",
+            "confirmation_character": "s",
             "client_name_prompt": "👤 Nome completo: ",
             "client_phone_prompt": "📞 Telefone de contato (ex: +584241234567): ",
             "invalid_option": "❌ Opção inválida",
@@ -288,7 +303,7 @@ LANGUAGE_CONFIG = {
             ),
             "apartamentos": (
                 "🏠 *Beschikbare Appartementen:*\n\n"
-                "1. **🌊Zeezicht**\n"
+                "1. **🌊 Zeezicht**\n"
                 "   - 🛌 Capaciteit: 4 gasten\n"
                 "   - 💲 Prijs: $110/nacht\n"
                 "   - 📍 Locatie: Westpunt-Curacao\n\n"
@@ -298,6 +313,10 @@ LANGUAGE_CONFIG = {
                 "   - 📍 Locatie: VIP Zone\n\n"
                 "**🏡 Inbegrepen Diensten:** WiFi • Zwembad • Parkeren • Netflix"
             ),
+            "apartment_images_prompt": "Wat wilt u doen?",
+            "view_apartment1_images": "Bekijk afbeeldingen van Appartement 1 (Zeezicht)",
+            "view_apartment2_images": "Bekijk afbeeldingen van Appartement 2 (Zwembadzicht)",
+            "return_to_menu": "Terug naar hoofdmenu",
             "reserva_pending": (
                 "⏳ *Reservering in Behandeling* 🚀\n\n"
                 "📋 ID: {booking_id}\n"
@@ -314,12 +333,13 @@ LANGUAGE_CONFIG = {
             ),
             "reserva_rejected": "❌ Geen beschikbaarheid. Probeer andere data.",
             "promociones": "🎉 20% KORTING voor verblijven >7 nachten",
-            "contact_info": "📞 Direct contact: Angela +5999-5153955 (WhatsApp)",
+            "contact_info": "📞 Hulp van mensen -> Angela is beschikbaar +5999-5153955 (WhatsApp)",
             "date_format_help": "🗓️ Formaat: YYYY-MM-DD tot YYYY-MM-DD\nVoorbeeld: 2024-12-01 tot 2024-12-10",
             "date_input_prompt": "📅 Data (check-in tot check-out): ",
             "apartment_choice_prompt": "🔍 Kies appartement (1/2): ",
             "total_price": "Totaal",
             "confirmation_prompt": "Bevestigen? (j/n)",
+            "confirmation_character": "j",
             "client_name_prompt": "👤 Volledige naam: ",
             "client_phone_prompt": "📞 Contacttelefoon (bijv. +584241234567): ",
             "invalid_option": "❌ Ongeldige optie",
