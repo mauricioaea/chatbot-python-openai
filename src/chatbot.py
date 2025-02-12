@@ -107,7 +107,17 @@ class Chatbot:
             print(f"\n{self._get_response('location_response').format(maps_url=maps_url)}")
 
     def contact_advisor(self):
+        """Muestra los datos de contacto del asesor con enlace directo a WhatsApp."""
+        phone_number = "+59995153955"  # Número de Angela
+        message = "Hola Angela 👋."
+        
+        # Crear el enlace de WhatsApp
+        whatsapp_link = f"https://wa.me/{phone_number}?text={message}"
+        
+        # Mostrar el mensaje con el enlace
         print("\n" + self._get_response("contact_info"))
+        print(f"\n💬 ¿Quieres hablar directamente con Angela? Haz clic en el enlace:")
+        print(f"🔗 {whatsapp_link}")
 
     def change_language(self):
         print("\n🌐 Seleccione un idioma / Select a language:")

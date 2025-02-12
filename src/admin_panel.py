@@ -133,7 +133,11 @@ def confirmar_pago_manual(conn):
         cursor.execute('''UPDATE bookings SET status = "confirmed" WHERE id = ?''', (booking_id,))
         conn.commit()
         
-        client_name, client_phone, check_in, check_out, apt_type, price = reserva
+        client_name, client_phone_encrypted, check_in, check_out, apt_type, price = reserva
+        
+        # Desencriptar el número de teléfono
+        from database import decrypt_data
+        client_phone = decrypt_data(client_phone_encrypted)
         
         mensaje = f'''
 🎉 *¡PAGO CONFIRMADO!*  
