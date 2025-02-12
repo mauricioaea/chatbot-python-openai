@@ -1,0 +1,13 @@
+# Archivos de base de datos y logs
+reservas.db
+chatbot_errors.log
+
+# Entorno virtual
+venv/
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+
+# Archivos de configuración sensible
+.env
